@@ -355,4 +355,49 @@ def render_footer():
     st.markdown("""
     <div style='text-align: center; color: #666; padding: 1rem;'>
         <p>🌍 Sistema de Monitoramento de Qualidade da Água v1.0</p>
-        <p>Desenvolvido com Python, Streamlit e Plotly | Dados simulados para demonstração</
+        <p>Desenvolvido com Python, Streamlit e Plotly | Dados simulados para demonstração</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# =============================================================================
+# FUNÇÃO PRINCIPAL
+# =============================================================================
+
+def main():
+    """Função principal do aplicativo."""
+    
+    # Renderiza header
+    render_header()
+    
+    # Carrega dados
+    df_full = generate_water_quality_data(days=30)
+    
+    # Sidebar com filtros
+    filters = create_sidebar_filters(df_full)
+    
+    # Aplica filtros
+    df_filtered = apply_time_filter(df_full, filters['date'])
+    if filters['stations']:
+        df_filtered = df_filtered[df_filtered['station'].isin(filters['stations'])]
+    
+    # Renderiza seções do dashboard
+    render_kpis(df_filtered)
+    
+    st.divider()
+    render_charts(df_filtered, filters['parameters'], filters['stations'])
+    
+    st.divider()
+    render_station_details(df_filtered, filters['stations'])
+    
+    st.divider()
+    render_alerts(df_filtered)
+    
+    st.divider()
+    render_export(df_filtered)
+    
+    render_footer()
+
+
+if __name__ == "__main__":
+    main()
