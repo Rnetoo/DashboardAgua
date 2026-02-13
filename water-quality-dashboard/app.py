@@ -9,6 +9,9 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
+# ✅ IMPORTAÇÃO DO GERADOR DE DADOS
+from data_generator import generate_water_quality_data
+
 # Importações dos nossos pacotes modulares
 from components import (
     create_line_chart,
@@ -71,61 +74,23 @@ st.markdown("""
 # GERAÇÃO DE DADOS
 # =============================================================================
 
-@st.cache_data(ttl=300)
-def generate_water_quality_data(days: int = 30, stations: int = 5) -> pd.DataFrame:
-    """
-    Gera dados sintéticos realistas de qualidade da água.
-    
-    Args:
-        days: Número de dias de dados históricos
-        stations: Número de estações de monitoramento
-    
-    Returns:
-        DataFrame com dados de qualidade da água
-    """
-    np.random.seed(42)
-    end_date = datetime.now()
-    start_date = end_date - timedelta(days=days)
-    dates = pd.date_range(start=start_date, end=end_date, freq='H')
-    
-    stations_names = [f"Estação {chr(65+i)}" for i in range(stations)]
-    locations = [
-        "Rio Principal", 
-        "Afluente Norte", 
-        "Afluente Sul", 
-        "Reservatório", 
-        "Estação de Tratamento"
-    ]
-    
-    data = []
-    for station_idx, station in enumerate(stations_names):
-        # Parâmetros base com variação entre estações
-        base_ph = 7.0 + np.random.normal(0, 0.3)
-        base_temp = 22 + np.random.normal(0, 2)
-        
-        for date in dates:
-            # Fatores temporais (diurno e sazonal)
-            hour_factor = np.sin(2 * np.pi * date.hour / 24)
-            day_factor = np.sin(2 * np.pi * date.timetuple().tm_yday / 365)
-            
-            data.append({
-                'timestamp': date,
-                'station': station,
-                'location': locations[station_idx],
-                'ph': base_ph + 0.5 * hour_factor + np.random.normal(0, 0.2),
-                'turbidity': max(0, 2 + 3 * np.random.exponential(0.5) + hour_factor),
-                'dissolved_oxygen': max(0, 8 - 0.5 * hour_factor + np.random.normal(0, 0.5)),
-                'temperature': base_temp + 3 * hour_factor + 5 * day_factor + np.random.normal(0, 0.5),
-                'conductivity': 200 + 50 * np.random.normal(0, 1) + 20 * hour_factor,
-                'total_dissolved_solids': 150 + 30 * np.random.normal(0, 1),
-                'nitrates': max(0, 2 + 3 * np.random.normal(0, 1)),
-                'status': np.random.choice(
-                    ['Normal', 'Alerta', 'Crítico'], 
-                    p=[0.85, 0.12, 0.03]
-                )
-            })
-    
-    return pd.DataFrame(data)
+# Removida a função generate_water_quality_data() do app.py
+# E adicione esta importação:
+
+from data_generator import WaterQualityDataGenerator
+
+# No main():
+generator = WaterQualityDataGenerator(seed=42)
+df_full = generator.generate(days=30)
+
+# Você pode até adicionar anomalias para testar alertas:
+df_full = generator.add_anomaly(
+    df_full, 
+    station="Estação A",
+    parameter="ph", 
+    start_time=datetime.now() - timedelta(days=2),
+    duration_hours=5
+)
 
 
 def apply_time_filter(df: pd.DataFrame, filter_config: dict) -> pd.DataFrame:
@@ -156,7 +121,7 @@ def apply_time_filter(df: pd.DataFrame, filter_config: dict) -> pd.DataFrame:
 
 def render_header():
     """Renderiza o cabeçalho do dashboard."""
-    st.markdown('<h1 class="main-header">💧 Water Quality Monitoring Dashboard</h1>', 
+    st.markdown('<h1 class="main-header">💧Dashboard Qualidade da Água</h1>', 
                 unsafe_allow_html=True)
     st.markdown('<p class="sub-header">Monitoramento em tempo real da qualidade da água</p>', 
                 unsafe_allow_html=True)
