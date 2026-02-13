@@ -2,6 +2,10 @@
 
 Dashboard interativo para monitoramento de indicadores de qualidade da água, desenvolvido com Python e Streamlit.
 
+
+## 🚀 Link do deploy: 🔗 Ao vivo: https://dbqualidadeagua.streamlit.app
+
+
 ## 🚀 Funcionalidades
 
 - **Monitoramento em Tempo Real**: Visualização de dados atualizados de múltiplas estações
