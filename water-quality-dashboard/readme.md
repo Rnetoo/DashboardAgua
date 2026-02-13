@@ -43,3 +43,10 @@ pip install -r requirements.txt
 
 # Execute o dashboard
 streamlit run app.py
+
+
+Melhorias Futuras
+🗺️ Adicionar mapa com localização das estações
+📧 Sistema de alertas por email
+🤖 Machine Learning para predição de qualidade
+📱 App mobile
